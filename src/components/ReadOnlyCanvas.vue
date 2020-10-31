@@ -12,7 +12,15 @@
 
 <script lang="ts">
 import { Component, Vue, Watch, Prop } from "vue-property-decorator";
-import { drawAnd, drawLine, drawOr, drawNot } from "./parts";
+import {
+  drawAnd,
+  drawLine,
+  drawOr,
+  drawNot,
+  drawDot,
+  drawInput,
+  drawOutput
+} from "./parts";
 
 interface Pos {
   x: number;
@@ -35,6 +43,18 @@ export default class MainCanvas extends Vue {
   })
   private readonly view!: string;
 
+  @Prop({
+    type: String,
+    default: "xz"
+  })
+  private readonly inputText!: string;
+
+  @Prop({
+    type: String,
+    default: "a"
+  })
+  private readonly outputText!: string;
+
   canvas: HTMLCanvasElement = null;
   context: CanvasRenderingContext2D = null;
 
@@ -52,12 +72,9 @@ export default class MainCanvas extends Vue {
 
     switch (this.view) {
       case "line":
-        this.context.beginPath();
-        this.context.moveTo(20, 100);
-        this.context.lineTo(80, 100);
-        this.context.closePath();
-        this.context.stroke();
+        drawLine(this.canvas, { x: 20, y: 100 }, { x: 180, y: 100 });
         break;
+
       case "and":
         drawAnd(this.canvas, { x: 100, y: 100 });
         break;
@@ -65,10 +82,32 @@ export default class MainCanvas extends Vue {
       case "or":
         drawOr(this.canvas, { x: 100, y: 100 });
         break;
-      
+
       case "not":
-        drawNot(this.canvas, { x:100, y:100 })
+        drawNot(this.canvas, { x: 100, y: 100 });
+        break;
+
+      case "dot":
+        drawDot(this.canvas, { x: 100, y: 100 });
+        break;
+
+      case "input":
+        drawInput(this.canvas, { x: 100, y: 100 }, this.inputText);
+        break;
+
+      case "output":
+        drawOutput(this.canvas, { x: 100, y: 100 }, this.outputText);
+        break;
     }
+  }
+
+  get watcher() {
+    return [this.inputText, this.outputText];
+  }
+
+  @Watch("watcher")
+  drawAll() {
+    this.draw();
   }
 }
 </script>

@@ -6,11 +6,24 @@
 
 <script lang="ts">
 import { Component, Vue, Watch, Prop, Emit } from "vue-property-decorator";
-import { drawAnd, drawLine, drawOr, drawNot } from "./parts";
+import {
+  drawAnd,
+  drawLine,
+  drawOr,
+  drawNot,
+  drawDot,
+  drawInput,
+  drawOutput
+} from "./parts";
 
 interface Pos {
   x: number;
   y: number;
+}
+
+interface PosText {
+  pos: Pos;
+  text: string;
 }
 
 @Component({
@@ -23,23 +36,51 @@ export default class MainCanvas extends Vue {
   })
   private selected!: string;
 
+  @Prop({
+    type: String,
+    default: "x"
+  })
+  private inputText!: string;
+
+  @Prop({
+    type: String,
+    default: "a"
+  })
+  private outputText!: string;
+
   radius = 50;
-  canvas: HTMLCanvasElement = null
-  // canvas = null;
+  canvas: HTMLCanvasElement = null;
   context: CanvasRenderingContext2D = null;
+
   lines: Pos[][] = [];
   ands: Pos[] = [];
   ors: Pos[] = [];
-  nots: Pos[] = []
+  nots: Pos[] = [];
+  dots: Pos[] = [];
+  inputs: PosText[] = [];
+  outputs: PosText[] = [];
+
+  delta: Pos[] = [
+    {
+      x: -60,
+      y: -30
+    },
+    {
+      x: -60,
+      y: 30
+    },
+    {
+      x: 70,
+      y: 0
+    }
+  ];
+
   lineSelect: Pos = null;
   nowMouse: Pos = null;
+  // inputText = "A";
 
   mounted() {
-    // mounted 以降で canvas の DOM にアクセスできる
-    // CreateJS などを使うときにも、ここで canvas と紐付ける
-    // console.log(this.$el);
-
-    this.canvas = this.$refs.canvas // <HTMLCanvasElement>this.$refs.canvas;
+    this.canvas = this.$refs.canvas; // <HTMLCanvasElement>this.$refs.canvas;
     this.context = this.canvas.getContext("2d")!;
 
     this.canvas.addEventListener("click", this.onClick, false);
@@ -48,40 +89,42 @@ export default class MainCanvas extends Vue {
 
   onMouseMove(e) {
     const rect = e.target.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const pos: Pos = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
 
     switch (this.selected) {
       case "line":
         if (!this.lineSelect) {
           if (this.nowMouse) this.nowMouse = null;
         } else {
-          this.nowMouse = {
-            x: x,
-            y: y
-          };
+          this.nowMouse = pos;
         }
         break;
       case "and":
-        this.nowMouse = {
-          x: x,
-          y: y
-        };
+        this.nowMouse = pos;
         break;
 
       case "or":
-        this.nowMouse = {
-          x: x,
-          y: y
-        };
+        this.nowMouse = pos;
         break;
 
       case "not":
-        this.nowMouse = {
-          x: x,
-          y: y
-        }
-        break
+        this.nowMouse = pos;
+        break;
+
+      case "dot":
+        this.nowMouse = pos;
+        break;
+
+      case "input":
+        this.nowMouse = pos;
+        break;
+
+      case "output":
+        this.nowMouse = pos;
+        break;
     }
   }
 
@@ -102,23 +145,47 @@ export default class MainCanvas extends Vue {
           };
         }
         break;
+
       case "and":
         this.ands.push(this.nowMouse);
-        // this.selected = ""
+        this.delta.forEach(d =>
+          this.dots.push({ x: this.nowMouse.x + d.x, y: this.nowMouse.y + d.y })
+        );
         this.resetSelected();
         break;
 
       case "or":
         this.ors.push(this.nowMouse);
+        this.delta.forEach(d =>
+          this.dots.push({ x: this.nowMouse.x + d.x, y: this.nowMouse.y + d.y })
+        );
         this.resetSelected();
         break;
-      
+
       case "not":
-        this.nots.push(this.nowMouse)
-        this.resetSelected()
-        break
+        this.nots.push(this.nowMouse);
+        this.dots.push({ x: this.nowMouse.x - 40, y: this.nowMouse.y });
+        this.dots.push({ x: this.nowMouse.x + 40, y: this.nowMouse.y });
+        this.resetSelected();
+        break;
+
+      case "dot":
+        this.dots.push(this.nowMouse);
+        this.resetSelected();
+        break;
+
+      case "input":
+        this.inputs.push({ pos: this.nowMouse, text: this.inputText });
+        this.dots.push({ x: this.nowMouse.x + 40, y: this.nowMouse.y });
+        this.resetSelected();
+        break;
+
+      case "output":
+        this.outputs.push({ pos: this.nowMouse, text: this.outputText });
+        this.dots.push({ x: this.nowMouse.x - 40, y: this.nowMouse.y });
+        this.resetSelected();
+        break;
     }
-    // console.log(`x: ${e.clientX - rect.left}, y: ${e.clientY - rect.top}`)
   }
 
   draw() {
@@ -152,37 +219,36 @@ export default class MainCanvas extends Vue {
       case "or":
         drawOr(this.canvas, this.nowMouse);
         break;
-      
+
       case "not":
-        drawNot(this.canvas, this.nowMouse)
+        drawNot(this.canvas, this.nowMouse);
+        break;
+
+      case "dot":
+        drawDot(this.canvas, this.nowMouse);
+        break;
+
+      case "input":
+        drawInput(this.canvas, this.nowMouse, this.inputText);
+        break;
+
+      case "output":
+        drawOutput(this.canvas, this.nowMouse, this.outputText);
+        break;
     }
 
     this.ands.forEach(and => drawAnd(this.canvas, and));
     this.ors.forEach(or => drawOr(this.canvas, or));
-    this.nots.forEach(not => drawNot(this.canvas, not))
-
-    // drawAnd(this.canvas, {x:500, y:200})
-
-    // this.context.stroke()
-    // this.context.fill();
-  }
-
-  someMethod(event) {
-    // clientX/Y gives the coordinates relative to the viewport in CSS pixels.
-    console.log(event.clientX); // x coordinate
-    console.log(event.clientY); // y coordinate
-
-    // pageX/Y gives the coordinates relative to the <html> element in CSS pixels.
-    console.log(event.pageX);
-    console.log(event.pagey);
-
-    // screenX/Y gives the coordinates relative to the screen in device pixels.
-    console.log(event.screenX);
-    console.log(event.screenY);
+    this.nots.forEach(not => drawNot(this.canvas, not));
+    this.dots.forEach(dot => drawDot(this.canvas, dot));
+    this.inputs.forEach(input => drawInput(this.canvas, input.pos, input.text));
+    this.outputs.forEach(output =>
+      drawOutput(this.canvas, output.pos, output.text)
+    );
   }
 
   get watched() {
-    return [this.lines, this.nowMouse];
+    return [this.lines, this.dots, this.nowMouse];
   }
 
   @Watch("watched")
