@@ -30,7 +30,7 @@ interface Pos {
 @Component({
   components: {}
 })
-export default class MainCanvas extends Vue {
+export default class ReadOnlyCanvas extends Vue {
   @Prop({
     type: Boolean,
     default: false

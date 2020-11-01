@@ -26,6 +26,15 @@ interface PosText {
   text: string;
 }
 
+interface AllJoin {
+  line: number[]
+  and: number[]
+  or: number[]
+  not: number[]
+  input: number[]
+  output: number[]
+}
+
 @Component({
   components: {}
 })
@@ -48,17 +57,29 @@ export default class MainCanvas extends Vue {
   })
   private outputText!: string;
 
-  radius = 50;
   canvas: HTMLCanvasElement = null;
   context: CanvasRenderingContext2D = null;
 
-  lines: Pos[][] = [];
+  lines: number[][] = []
+
   ands: Pos[] = [];
+  andDot: number[][] = []
+
   ors: Pos[] = [];
+  orDot: number[][] = []
+
   nots: Pos[] = [];
+  notDot: number[][] = []
+
   dots: Pos[] = [];
+  dotsJoin: AllJoin[] = []
+
   inputs: PosText[] = [];
+  inputDot: number[] = []
+
   outputs: PosText[] = [];
+  outputDot: number[] = []
+
 
   delta: Pos[] = [
     {
@@ -75,9 +96,8 @@ export default class MainCanvas extends Vue {
     }
   ];
 
-  lineSelect: Pos = null;
+  lineSelect: number = null;
   nowMouse: Pos = null;
-  // inputText = "A";
 
   mounted() {
     this.canvas = this.$refs.canvas; // <HTMLCanvasElement>this.$refs.canvas;
@@ -95,13 +115,12 @@ export default class MainCanvas extends Vue {
     };
 
     switch (this.selected) {
-      case "line":
-        if (!this.lineSelect) {
-          if (this.nowMouse) this.nowMouse = null;
-        } else {
-          this.nowMouse = pos;
-        }
+      case "line": {
+        const [dist, nearPos] = this.nearDot(pos);
+        this.nowMouse = dist < 200 ? this.dots[nearPos] : pos;
         break;
+      }
+
       case "and":
         this.nowMouse = pos;
         break;
@@ -130,40 +149,75 @@ export default class MainCanvas extends Vue {
 
   onClick(e) {
     const rect = e.target.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const pos: Pos = {
+      x : e.clientX - rect.left,
+      y:  e.clientY - rect.top
+    }
 
     switch (this.selected) {
       case "line":
-        if (this.lineSelect) {
-          this.lines.push([this.lineSelect, { x: x, y: y }]);
+        if (this.lineSelect !== null) {
+          const [dist, idx] = this.nearDot(pos)
+          if (dist >= 200) {
+            this.dotsJoin[this.lineSelect].line.push(this.lines.length)
+            this.addDotsJoin()
+            this.dotsJoin[this.dots.length].line.push(this.lines.length)
+
+            this.lines.push([this.lineSelect, this.dots.length])
+
+            this.dots.push(this.nowMouse);
+          } else {
+            this.dotsJoin[this.lineSelect].line.push(this.lines.length)
+            this.dotsJoin[idx].line.push(this.lines.length)
+
+            this.lines.push([this.lineSelect, idx])
+          }
           this.lineSelect = null;
         } else {
-          this.lineSelect = {
-            x: x,
-            y: y
-          };
+          const [dist, idx] = this.nearDot(pos)
+          if (dist < 200) {
+            this.lineSelect = idx
+          } else {
+            this.lineSelect = this.dots.length
+            this.dots.push(pos)
+            this.addDotsJoin()
+          }
         }
         break;
 
       case "and":
         this.ands.push(this.nowMouse);
-        this.delta.forEach(d =>
+        this.andDot.push([this.dots.length, this.dots.length + 1, this.dots.length + 2])
+        this.delta.forEach(d => {
+          this.addDotsJoin()
+          this.dotsJoin[this.dots.length].and.push(this.ands.length - 1)
+
           this.dots.push({ x: this.nowMouse.x + d.x, y: this.nowMouse.y + d.y })
-        );
+        });
         this.resetSelected();
         break;
 
       case "or":
         this.ors.push(this.nowMouse);
-        this.delta.forEach(d =>
+        // this.orDot.push([])
+        this.orDot.push([this.dots.length, this.dots.length + 1, this.dots.length + 2])
+        this.delta.forEach(d => {
+          // this.orDot[-1].push(this.dots.length)
+          this.addDotsJoin()
+          this.dotsJoin[this.dots.length].or.push(this.ors.length - 1)
+
           this.dots.push({ x: this.nowMouse.x + d.x, y: this.nowMouse.y + d.y })
-        );
+        });
         this.resetSelected();
         break;
 
       case "not":
         this.nots.push(this.nowMouse);
+        this.notDot.push([this.dots.length, this.dots.length + 1])
+        this.addDotsJoin(2)
+        this.dotsJoin[this.dots.length].not.push(this.nots.length - 1)
+        this.dotsJoin[this.dots.length + 1].not.push(this.nots.length - 1)
+
         this.dots.push({ x: this.nowMouse.x - 40, y: this.nowMouse.y });
         this.dots.push({ x: this.nowMouse.x + 40, y: this.nowMouse.y });
         this.resetSelected();
@@ -171,18 +225,28 @@ export default class MainCanvas extends Vue {
 
       case "dot":
         this.dots.push(this.nowMouse);
+        this.addDotsJoin()
+
         this.resetSelected();
         break;
 
       case "input":
         this.inputs.push({ pos: this.nowMouse, text: this.inputText });
+        this.inputDot.push(this.dots.length)
+
         this.dots.push({ x: this.nowMouse.x + 40, y: this.nowMouse.y });
+        this.addDotsJoin()
+        this.dotsJoin[this.dotsJoin.length - 1].input.push(this.inputs.length - 1)
         this.resetSelected();
         break;
 
       case "output":
         this.outputs.push({ pos: this.nowMouse, text: this.outputText });
+        this.outputDot.push(this.dots.length)
+
         this.dots.push({ x: this.nowMouse.x - 40, y: this.nowMouse.y });
+        this.addDotsJoin()
+        this.dotsJoin[this.dotsJoin.length - 1].output.push(this.outputs.length - 1)
         this.resetSelected();
         break;
     }
@@ -193,23 +257,14 @@ export default class MainCanvas extends Vue {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.fill();
 
-    this.lines.forEach(line => {
-      this.context.moveTo(line[0].x, line[0].y);
-      this.context.lineTo(line[1].x, line[1].y);
-    });
-
     this.context.closePath();
     this.context.stroke();
 
     switch (this.selected) {
       case "line":
-        this.context.beginPath();
-        if (this.nowMouse && this.lineSelect) {
-          this.context.moveTo(this.lineSelect.x, this.lineSelect.y);
-          this.context.lineTo(this.nowMouse.x, this.nowMouse.y);
+        if (this.nowMouse && this.lineSelect !== null) {
+          drawLine(this.canvas, this.dots[this.lineSelect], this.nowMouse);
         }
-        this.context.closePath();
-        this.context.stroke();
         break;
 
       case "and":
@@ -237,6 +292,9 @@ export default class MainCanvas extends Vue {
         break;
     }
 
+    this.lines.forEach(line =>
+      drawLine(this.canvas, this.dots[line[0]], this.dots[line[1]])
+    );
     this.ands.forEach(and => drawAnd(this.canvas, and));
     this.ors.forEach(or => drawOr(this.canvas, or));
     this.nots.forEach(not => drawNot(this.canvas, not));
@@ -247,8 +305,54 @@ export default class MainCanvas extends Vue {
     );
   }
 
+  nearDot(pos: Pos): [number, number] {
+    let minD = 1e9;
+    let minIdx = -1;
+    this.dots.forEach((dot, idx) => {
+      const d = (pos.x - dot.x) ** 2 + (pos.y - dot.y) ** 2;
+      if (d < minD) {
+        minD = d;
+        minIdx = idx;
+      }
+    });
+    return [minD, minIdx];
+  }
+
+  addDotsJoin(x = 1) {
+    const defaultAllJoin: AllJoin = {
+      line: [],
+      and: [],
+      or: [],
+      not: [],
+      input: [],
+      output: []
+    }
+    for(let i=0; i<x; i++) this.dotsJoin.push({
+      line: [],
+      and: [],
+      or: [],
+      not: [],
+      input: [],
+      output: []
+    })
+  }
+
   get watched() {
     return [this.lines, this.dots, this.nowMouse];
+  }
+
+  get parts() {
+    return {
+      lines: this.lines,
+      ands: this.andDot,
+      ors: this.orDot,
+      nots: this.notDot,
+      inputName: this.inputs,
+      inputs: this.inputDot,
+      outputName: this.outputs,
+      outputs: this.outputDot,
+      dots: this.dotsJoin
+    }
   }
 
   @Watch("watched")
@@ -256,9 +360,19 @@ export default class MainCanvas extends Vue {
     this.draw();
   }
 
+  @Watch("parts")
+  emitParts(){
+    this.exportParts()
+  }
+
   @Emit("reset")
   resetSelected() {
     return;
+  }
+
+  @Emit("parts")
+  exportParts() {
+    return this.parts
   }
 }
 </script>

@@ -1,10 +1,23 @@
 <template>
   <div>
-    <div class="title">論理回路図</div>
-    <main-canvas class="main-canvas"
+    <div class="title">
+      <div>論理回路図</div>
+      <button v-on:click="doMakeTable">真理値表を作成</button>
+      <display-table
+        v-if="showTable"
+        :formulaData="dotsFormula"
+        :boolData="dotsBool"
+        :partsData="parts"
+        @close="showTable = false"
+      />
+    </div>
+    <main-canvas
+      class="main-canvas"
       :selected="selected"
       @reset="resetSelected"
+      @parts="setParts"
       :inputText="inputText"
+      :outputText="outputText"
     />
     <div class="selectPartsContainer">
       <div v-for="name in partsName" v-bind:key="name" class="selectParts">
@@ -37,11 +50,46 @@
 import { Component, Vue } from "vue-property-decorator";
 import MainCanvas from "./components/MainCanvas.vue";
 import ReadOnlyCanvas from "./components/ReadOnlyCanvas.vue";
+import { MakeTable } from "./components/makeTable";
+import DisplayTable from "./components/DisplayTable.vue";
+
+interface Pos {
+  x: number;
+  y: number;
+}
+
+interface PosText {
+  x: number;
+  y: number;
+  text: string;
+}
+
+interface AllJoin {
+  line: number[];
+  and: number[];
+  or: number[];
+  not: number[];
+  input: number[];
+  output: number[];
+}
+
+interface Parts {
+  lines: number[][];
+  ands: number[][];
+  ors: number[][];
+  nots: number[][];
+  inputName: PosText[];
+  inputs: number[];
+  outputName: PosText[];
+  outputs: number[];
+  dots: AllJoin[];
+}
 
 @Component({
   components: {
     MainCanvas,
-    ReadOnlyCanvas
+    ReadOnlyCanvas,
+    DisplayTable
   }
 })
 export default class App extends Vue {
@@ -49,9 +97,35 @@ export default class App extends Vue {
   partsName = ["line", "and", "or", "not", "dot", "input", "output"];
   inputText = "x";
   outputText = "a";
+  showTable = false;
+  dotsFormula: string[] = [];
+  dotsBool: boolean[][] = [];
+
+  parts: Parts = {
+    lines: [],
+    ands: [],
+    ors: [],
+    nots: [],
+    inputName: [],
+    inputs: [],
+    outputName: [],
+    outputs: [],
+    dots: []
+  };
+
+  doMakeTable() {
+    this.showTable = true;
+    const tableData = MakeTable(this.parts);
+    this.dotsFormula = tableData.formula;
+    this.dotsBool = tableData.bool;
+  }
 
   resetSelected() {
     this.selected = "";
+  }
+
+  setParts(parts: Parts) {
+    this.parts = parts;
   }
 }
 </script>
