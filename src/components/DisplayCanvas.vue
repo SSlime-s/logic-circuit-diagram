@@ -99,7 +99,8 @@ export default class DisplayCanvas extends Vue {
 
   draw() {
     this.context.beginPath();
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.context.fillStyle = "#ffffff"
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.fill();
 
     this.context.closePath();
@@ -121,15 +122,22 @@ export default class DisplayCanvas extends Vue {
 </script>
 
 <style lang="scss" scoped>
+$accent: #005bac;
+$background: #ffffff;
+$background-sub: #f0f2f5;
+$text: #333333;
+$text-sub: #79797a;
+$ui: #49535b;
+$ui-sub: #6b7d8a;
+$danger: #f26451;
+
 .display-canvas-container {
   // height: 100%;
   .display-canvas {
-    border: 2px solid #aaa;
-    /* width: auto; */
-    // height: 200px;
-    // height: 100%;
+    border: 2px solid #49535b;
     width: 40vw;
     margin: 0px;
+    background: $background;
   }
 }
 </style>

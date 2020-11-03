@@ -13,7 +13,7 @@
           </div>
           <div class="logic-fomula-container">
             <table class="logic-formula-list">
-              <tr v-for="(output, idx) in partsData.outputs" :key="output">
+              <tr v-for="(output, idx) in partsData.outputs" :key="idx">
                 <td class="logic-formula-label">
                   {{ partsData.outputName[idx].text }}
                 </td>
@@ -29,33 +29,33 @@
           <table class="truth-table">
             <tr class="labels">
               <th
-                v-for="name in partsData.inputName"
-                :key="name.text"
+                v-for="(name, index) in partsData.inputName"
+                :key="index"
                 class="input-label"
               >
                 {{ name.text }}
               </th>
               <th class="label-split" />
               <th
-                v-for="name in partsData.outputName"
-                :key="name.text"
+                v-for="(name, index) in partsData.outputName"
+                :key="index"
                 class="output-label"
               >
                 {{ name.text }}
               </th>
             </tr>
-            <tr v-for="bools in boolData" :key="bools" class="values">
+            <tr v-for="(bools, index) in boolData" :key="index" class="values">
               <td
-                v-for="idx in partsData.inputs"
-                :key="idx"
+                v-for="(idx, index) in partsData.inputs"
+                :key="index"
                 class="input-value"
               >
                 {{ bools[idx] ? 1 : 0 }}
               </td>
               <td class="value-split" />
               <td
-                v-for="idx in partsData.outputs"
-                :key="idx"
+                v-for="(idx, index) in partsData.outputs"
+                :key="index"
                 class="output-value"
               >
                 {{ bools[idx] ? 1 : 0 }}
@@ -150,6 +150,17 @@ export default class DisplayTable extends Vue {
 </script>
 
 <style lang="scss" scoped>
+$accent: #005bac;
+$background: #ffffff;
+$background-sub: #f0f2f5;
+$background-ter: #e2e5e9;
+$text: #333333;
+$text-sub: #79797a;
+$ui: #49535b;
+$ui-sub: #6b7d8a;
+$ui-ter: #ced6db;
+$danger: #f26451;
+
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -172,7 +183,7 @@ export default class DisplayTable extends Vue {
   height: 90%;
   margin: 0px auto;
   padding: 20px 30px;
-  background-color: #fff;
+  background-color: #ffffff;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
@@ -202,31 +213,28 @@ export default class DisplayTable extends Vue {
     // display: inline-block;
   }
   .logic-fomula-container {
-    // border: solid 5px #000;
     display: table-cell;
     width: 100%;
-    // max-width: 45vw;
     vertical-align: top;
     margin-top: 20px;
     grid-column: 2;
     .logic-formula-list {
       border-collapse: collapse;
       margin-left: 20px;
-      // table-layout: fixed;
       margin-right: 40px;
+      font-size: 25px;
       .logic-formula-label {
-        border: solid 1px #000;
-        border-right: solid 3px #000;
+        border: solid 1px $ui-sub;
+        border-right: solid 2px $ui;
       }
       .logic-formula-value {
-        border: solid 1px #000;
-        word-break : break-all;
+        border: solid 1px $ui-sub;
+        word-break: break-all;
       }
       td {
         padding: 5px;
         padding-right: 20px;
         padding-left: 20px;
-        // overflow-wrap: break-word;
       }
     }
   }
@@ -235,26 +243,38 @@ export default class DisplayTable extends Vue {
 .truth-table {
   display: inline-block;
   border-collapse: collapse;
-  border: solid #000;
+  padding: 0;
   margin-top: 40px;
   clear: both;
+  font-size: 25px;
+  .label-split,
+  .value-split {
+    border-top: solid 2px $ui-sub;
+    border-bottom: solid 2px $ui-sub;
+    padding: 0 2px;
+  }
+  .label-split {
+    background: $background-ter;
+    border-bottom: solid 3px $ui;
+  }
   .input-label,
   .output-label {
-    padding: 5px;
-    padding-left: 40px;
-    padding-right: 40px;
-    background: #ccc;
-    border: solid 1px #000;
-    border-bottom: solid 3px #000;
+    padding: 5px 40px;
+    background: $background-ter;
+    border: solid 2px $ui-sub;
+    border-bottom: solid 3px $ui;
   }
   .values {
     .input-value,
     .output-value {
       text-align: center;
-      border: solid 1px #000;
+      border: solid 2px $ui-sub;
+    }
+    &:nth-child(even) {
+      background: $background;
     }
     &:nth-child(odd) {
-      background: #eee;
+      background: $background-sub;
     }
   }
 }

@@ -1,8 +1,12 @@
 <template>
-  <div>
+  <div class="app-container">
     <div class="title">
-      <div>論理回路図</div>
-      <button v-on:click="doMakeTable">真理値表を作成</button>
+      <span class="title-text">論理回路図</span>
+      <span class="make-table-button-container">
+        <button class="make-table-button" v-on:click="doMakeTable">
+          真理値表を作成
+        </button>
+      </span>
       <display-table
         v-if="showTable"
         :formulaData="dotsFormula"
@@ -104,6 +108,7 @@ export default class App extends Vue {
   showTable = false;
   dotsFormula: string[] = [];
   dotsBool: boolean[][] = [];
+  loading = false;
 
   parts: Parts = {
     lines: [],
@@ -125,11 +130,12 @@ export default class App extends Vue {
     inputs: [],
     outputs: [],
     dots: []
-  }
+  };
 
   doMakeTable() {
-    this.showTable = true;
+    this.loading = true;
     const tableData = MakeTable(this.parts);
+    this.showTable = true;
     this.dotsFormula = tableData.formula;
     this.dotsBool = tableData.bool;
   }
@@ -143,12 +149,23 @@ export default class App extends Vue {
   }
 
   setPoses(poses) {
-    this.poses = poses
+    this.poses = poses;
   }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+$accent: #005bac;
+$background: #ffffff;
+$background-sub: #f0f2f5;
+$background-ter: #e2e5e9;
+$text: #333333;
+$text-sub: #79797a;
+$ui: #49535b;
+$ui-sub: #6b7d8a;
+$ui-ter: #ced6db;
+$danger: #f26451;
+
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500&display=swap");
 div {
   /* Google fontsで導入したいfontsからfont-familyを取ってくる */
@@ -156,7 +173,7 @@ div {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #333333;
   /* margin-top: 60px; */
 }
 /* .main-canvas {
@@ -165,8 +182,45 @@ div {
 input {
   width: 100px;
 }
+.app-container {
+  background: $background;
+}
 .title {
-  font-size: 2rem;
+  // width: 100vw;
+  // border: solid 2px #000;
+  position: relative;
+  .title-text {
+    // display: inline-block;
+    // text-align: center;
+    font-size: 48px;
+    vertical-align: middle;
+    // float: center;
+  }
+  .make-table-button-container {
+    position: absolute;
+    // border: solid 2px #f00;
+    right: 0;
+    // top: 0;
+    height: 100%;
+    // display: hidden;
+    // display: inline-block;
+    text-align: right;
+    .make-table-button {
+      border: $ui-ter solid 1px;
+      background: $background-sub;
+      &:hover {
+        border-color: $accent;
+        background: $background-ter;
+      }
+      padding: 4px 16px;
+      height: auto;
+      font-size: 24px;
+      font-family: "Noto Serif JP", serif;
+    }
+  }
+}
+.main-canvas {
+  margin-top: 24px;
 }
 .selectPartsContainer {
   position: relative;
@@ -184,8 +238,11 @@ input {
 input[type="radio"] {
   display: none;
 }
-input.change-name:focus {
-  border: 2px solid #59f;
-  outline: 0;
+.change-name {
+  border: #ced6db solid 2px;
+  &:focus {
+    border: 2px solid #005bac;
+    outline: 0;
+  }
 }
 </style>

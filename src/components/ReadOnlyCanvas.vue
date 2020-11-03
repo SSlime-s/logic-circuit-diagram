@@ -35,7 +35,7 @@ export default class ReadOnlyCanvas extends Vue {
     type: Boolean,
     default: false
   })
-  private readonly isSelected: boolean;
+  private readonly isSelected!: boolean;
 
   @Prop({
     type: String,
@@ -112,13 +112,27 @@ export default class ReadOnlyCanvas extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+$accent: #005bac;
+$background: #ffffff;
+$background-sub: #f0f2f5;
+$background-ter: #e2e5e9;
+$text: #333333;
+$text-sub: #79797a;
+$ui: #49535b;
+$ui-sub: #6b7d8a;
+$ui-ter: #ced6db;
+$danger: #f26451;
+
 .canvas {
-  border: 2px solid #aaa;
+  border: 2px solid #CED6DB;
   /* width: auto; */
   height: 100px;
+  &:hover {
+    background: $background-sub;
+  }
 }
 .isSelected {
-  border: 2px solid #59f;
+  border: 2px solid #005bac;
 }
 </style>
