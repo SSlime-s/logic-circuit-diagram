@@ -8,6 +8,7 @@
         :formulaData="dotsFormula"
         :boolData="dotsBool"
         :partsData="parts"
+        :allPoses="poses"
         @close="showTable = false"
       />
     </div>
@@ -16,6 +17,7 @@
       :selected="selected"
       @reset="resetSelected"
       @parts="setParts"
+      @poses="setPoses"
       :inputText="inputText"
       :outputText="outputText"
     />
@@ -32,11 +34,13 @@
           />
         </label>
         <input
+          class="change-name"
           v-if="name === 'input'"
           v-model="inputText"
           placeholder="Input Text"
         />
         <input
+          class="change-name"
           v-else-if="name === 'output'"
           v-model="outputText"
           placeholder="Output Text"
@@ -113,6 +117,16 @@ export default class App extends Vue {
     dots: []
   };
 
+  poses = {
+    lines: [],
+    ands: [],
+    ors: [],
+    nots: [],
+    inputs: [],
+    outputs: [],
+    dots: []
+  }
+
   doMakeTable() {
     this.showTable = true;
     const tableData = MakeTable(this.parts);
@@ -126,6 +140,10 @@ export default class App extends Vue {
 
   setParts(parts: Parts) {
     this.parts = parts;
+  }
+
+  setPoses(poses) {
+    this.poses = poses
   }
 }
 </script>
@@ -165,5 +183,9 @@ input {
 }
 input[type="radio"] {
   display: none;
+}
+input.change-name:focus {
+  border: 2px solid #59f;
+  outline: 0;
 }
 </style>

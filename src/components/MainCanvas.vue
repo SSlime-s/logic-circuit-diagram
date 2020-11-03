@@ -355,6 +355,18 @@ export default class MainCanvas extends Vue {
     }
   }
 
+  get poses() {
+    return {
+      lines: this.lines,
+      ands: this.ands,
+      ors: this.ors,
+      nots: this.nots,
+      inputs: this.inputs,
+      outputs: this.outputs,
+      dots: this.dots
+    }
+  }
+
   @Watch("watched")
   DrawRadius() {
     this.draw();
@@ -363,6 +375,11 @@ export default class MainCanvas extends Vue {
   @Watch("parts")
   emitParts(){
     this.exportParts()
+  }
+
+  @Watch("poses")
+  emitPoses(){
+    this.exportPoses()
   }
 
   @Emit("reset")
@@ -374,6 +391,11 @@ export default class MainCanvas extends Vue {
   exportParts() {
     return this.parts
   }
+
+  @Emit("poses")
+  exportPoses(){
+    return this.poses
+  }
 }
 </script>
 
@@ -381,6 +403,6 @@ export default class MainCanvas extends Vue {
 .canvas {
   border: 2px solid #aaa;
   /* width: auto; */
-  height: auto;
+  /* width: 100%; */
 }
 </style>

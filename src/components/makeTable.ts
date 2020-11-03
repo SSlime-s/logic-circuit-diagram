@@ -78,7 +78,6 @@ export function MakeTable(parts: Parts) {
     })
     dotsFormula[parts.inputs[idx]] = name.text
   })
-  console.log(dfs)
 
   while( dfs.length ){
     const nowDot: DFS = dfs.pop()!
@@ -170,10 +169,9 @@ export function MakeTable(parts: Parts) {
   parts.outputs.forEach((out, idx) => {
     const name = parts.outputName[idx].text
     const formula = dotsFormula[out]
-    console.log(`${name}: ${formula}`)
   });
-  console.log(dotsBool)
-  console.log(dotsFormula)
-  console.log(parts)
+  // console.log(dotsBool)
+  // console.log(dotsFormula)
+  // console.log(parts)
   return {formula:dotsFormula, bool:dotsBool}
 }
