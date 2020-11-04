@@ -17,7 +17,10 @@
             </div>
           </div>
           <div class="logic-fomula-container">
-            <table class="logic-formula-list">
+            <table
+              v-if="partsData.outputs.length > 0"
+              class="logic-formula-list"
+            >
               <tr v-for="(output, idx) in partsData.outputs" :key="idx">
                 <td class="logic-formula-label">
                   {{ partsData.outputName[idx].text }}
@@ -27,6 +30,10 @@
                 </td>
               </tr>
             </table>
+
+            <div v-else class="logic-formula-null">
+              出力が存在しません
+            </div>
           </div>
         </div>
 
@@ -34,7 +41,10 @@
           <div class="truth-table-label">
             真理値表
           </div>
-          <table class="truth-table">
+          <table
+            v-if="partsData.outputs.length > 0 || partsData.inputs.length > 0"
+            class="truth-table"
+          >
             <tr class="labels">
               <th
                 v-for="(name, index) in partsData.inputName"
@@ -82,6 +92,9 @@
               </td>
             </tr>
           </table>
+          <div v-else class="truth-table-null">
+            入力や出力が存在しません
+          </div>
         </div>
 
         <!-- <div class="modal-footer">
@@ -251,6 +264,8 @@ $danger: #f26451;
     vertical-align: top;
     margin-top: 20px;
     grid-column: 2;
+    position: relative;
+    // border: 2px #000 solid;
     .logic-formula-list {
       border-collapse: collapse;
       margin-left: 20px;
@@ -270,49 +285,63 @@ $danger: #f26451;
         padding-left: 20px;
       }
     }
+    .logic-formula-null {
+      position: absolute;
+      vertical-align: middle;
+      margin-left: 16px;
+      color: $text-sub;
+      top: 50%;
+      transform: translateY(-50%)
+    }
   }
 }
 
-.truth-table-label {
-  margin-top: 24px;
-  font-size: 24px;
-}
+.truth-table-container {
+  .truth-table-label {
+    margin-top: 24px;
+    font-size: 24px;
+  }
 
-.truth-table {
-  display: inline-block;
-  border-collapse: collapse;
-  padding: 0;
-  margin-top: 12px;
-  clear: both;
-  font-size: 25px;
-  .label-split,
-  .value-split {
-    border: solid 1px $ui-sub;
-    padding: 0 2px;
-  }
-  .label-split {
-    background: $background-ter;
-    border-bottom: solid 2px $ui;
-  }
-  .input-label,
-  .output-label {
-    padding: 5px 40px;
-    background: $background-ter;
-    border: solid 1px $ui-sub;
-    border-bottom: solid 2px $ui;
-  }
-  .values {
-    .input-value,
-    .output-value {
-      text-align: center;
+  .truth-table {
+    display: inline-block;
+    border-collapse: collapse;
+    padding: 0;
+    margin-top: 12px;
+    clear: both;
+    font-size: 25px;
+    .label-split,
+    .value-split {
       border: solid 1px $ui-sub;
+      padding: 0 2px;
     }
-    &:nth-child(even) {
-      background: $background;
+    .label-split {
+      background: $background-ter;
+      border-bottom: solid 2px $ui;
     }
-    &:nth-child(odd) {
-      background: $background-sub;
+    .input-label,
+    .output-label {
+      padding: 5px 40px;
+      background: $background-ter;
+      border: solid 1px $ui-sub;
+      border-bottom: solid 2px $ui;
     }
+    .values {
+      .input-value,
+      .output-value {
+        text-align: center;
+        border: solid 1px $ui-sub;
+      }
+      &:nth-child(even) {
+        background: $background;
+      }
+      &:nth-child(odd) {
+        background: $background-sub;
+      }
+    }
+  }
+  .truth-table-null {
+    margin-top: 24px;
+    color: $text-sub;
   }
 }
 </style>

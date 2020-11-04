@@ -155,9 +155,13 @@ export default class MainCanvas extends Vue {
   }
 
   onRightClick(e) {
-    if (this.selected == "line" && this.lineSelect !== null) {
+    if (this.selected === "line" && this.lineSelect !== null) {
       this.lineSelect = null;
       this.onMouseMove(e)
+    } else if (this.selected !== "line"){
+      // this.nowMouse = null;
+      this.resetSelected();
+      this.onMouseMove(e);
     }
   }
 
