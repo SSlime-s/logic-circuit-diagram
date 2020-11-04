@@ -5,6 +5,11 @@
         <!-- <div class="title">
           真理値表
         </div> -->
+        <div class="close-button-container">
+          <button class="close-button" @click="$emit('close')">
+            X
+          </button>
+        </div>
         <div class="canvas-and-formula">
           <div class="canvas-container">
             <div class="canvas">
@@ -26,6 +31,9 @@
         </div>
 
         <div class="truth-table-container">
+          <div class="truth-table-label">
+            真理値表
+          </div>
           <table class="truth-table">
             <tr class="labels">
               <th
@@ -35,7 +43,13 @@
               >
                 {{ name.text }}
               </th>
-              <th class="label-split" />
+              <th
+                class="label-split"
+                v-if="
+                  partsData.inputName.length > 0 &&
+                    partsData.outputName.length > 0
+                "
+              />
               <th
                 v-for="(name, index) in partsData.outputName"
                 :key="index"
@@ -52,7 +66,13 @@
               >
                 {{ bools[idx] ? 1 : 0 }}
               </td>
-              <td class="value-split" />
+              <td
+                class="value-split"
+                v-if="
+                  partsData.inputName.length > 0 &&
+                    partsData.outputName.length > 0
+                "
+              />
               <td
                 v-for="(idx, index) in partsData.outputs"
                 :key="index"
@@ -64,14 +84,14 @@
           </table>
         </div>
 
-        <div class="modal-footer">
+        <!-- <div class="modal-footer">
           <slot name="footer">
             default footer
             <button class="modal-default-button" @click="$emit('close')">
               OK
             </button>
           </slot>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -190,6 +210,19 @@ $danger: #f26451;
   overflow-y: auto;
 }
 
+.close-button-container {
+  text-align: right;
+  .close-button {
+    background: $background;
+    border: none;
+    color: $ui-sub;
+    font-size: 30px;
+    &:hover {
+      color: $ui-ter;
+    }
+  }
+}
+
 .canvas-and-formula {
   // border: solid 5px #000;
   overflow: hidden;
@@ -240,35 +273,39 @@ $danger: #f26451;
   }
 }
 
+.truth-table-label {
+  margin-top: 24px;
+  font-size: 24px;
+}
+
 .truth-table {
   display: inline-block;
   border-collapse: collapse;
   padding: 0;
-  margin-top: 40px;
+  margin-top: 12px;
   clear: both;
   font-size: 25px;
   .label-split,
   .value-split {
-    border-top: solid 2px $ui-sub;
-    border-bottom: solid 2px $ui-sub;
+    border: solid 1px $ui-sub;
     padding: 0 2px;
   }
   .label-split {
     background: $background-ter;
-    border-bottom: solid 3px $ui;
+    border-bottom: solid 2px $ui;
   }
   .input-label,
   .output-label {
     padding: 5px 40px;
     background: $background-ter;
-    border: solid 2px $ui-sub;
-    border-bottom: solid 3px $ui;
+    border: solid 1px $ui-sub;
+    border-bottom: solid 2px $ui;
   }
   .values {
     .input-value,
     .output-value {
       text-align: center;
-      border: solid 2px $ui-sub;
+      border: solid 1px $ui-sub;
     }
     &:nth-child(even) {
       background: $background;

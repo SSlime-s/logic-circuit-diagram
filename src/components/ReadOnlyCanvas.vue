@@ -125,7 +125,8 @@ $ui-ter: #ced6db;
 $danger: #f26451;
 
 .canvas {
-  border: 2px solid #CED6DB;
+  border: 1px solid $ui-sub;
+  margin: 1px;
   /* width: auto; */
   height: 100px;
   &:hover {
@@ -133,6 +134,7 @@ $danger: #f26451;
   }
 }
 .isSelected {
+  margin: 0;
   border: 2px solid #005bac;
 }
 </style>

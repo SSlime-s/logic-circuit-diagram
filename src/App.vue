@@ -239,10 +239,12 @@ input[type="radio"] {
   display: none;
 }
 .change-name {
-  border: #ced6db solid 2px;
+  border: $ui-sub solid 1px;
+  margin: 1px;
   &:focus {
     border: 2px solid #005bac;
     outline: 0;
+    margin: 0;
   }
 }
 </style>
