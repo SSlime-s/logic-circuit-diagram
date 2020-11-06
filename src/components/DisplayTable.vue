@@ -26,7 +26,13 @@
                   {{ partsData.outputName[idx].text }}
                 </td>
                 <td class="logic-formula-value">
-                  {{ formulaData[output] ? formulaData[output] : "null" }}
+                  {{
+                    formulaData[output]
+                      ? formulaData[output][0] === "("
+                        ? formulaData[output].slice(1, -1)
+                        : formulaData[output]
+                      : "null"
+                  }}
                 </td>
               </tr>
             </table>
@@ -48,7 +54,7 @@
             <tr class="labels">
               <th
                 v-for="(name, index) in partsData.inputName"
-                :key="index"
+                :key="`input-name-${index}`"
                 class="input-label"
               >
                 {{ name.text }}
@@ -62,7 +68,7 @@
               />
               <th
                 v-for="(name, index) in partsData.outputName"
-                :key="index"
+                :key="`output-name-${index}`"
                 class="output-label"
               >
                 {{ name.text }}
@@ -71,7 +77,7 @@
             <tr v-for="(bools, index) in boolData" :key="index" class="values">
               <td
                 v-for="(idx, index) in partsData.inputs"
-                :key="index"
+                :key="`input-${index}`"
                 class="input-value"
               >
                 {{ bools[idx] ? 1 : 0 }}
@@ -85,26 +91,18 @@
               />
               <td
                 v-for="(idx, index) in partsData.outputs"
-                :key="index"
+                :key="`output-${index}`"
                 class="output-value"
               >
                 {{ bools[idx] ? 1 : 0 }}
               </td>
             </tr>
           </table>
+
           <div v-else class="truth-table-null">
             入力や出力が存在しません
           </div>
         </div>
-
-        <!-- <div class="modal-footer">
-          <slot name="footer">
-            default footer
-            <button class="modal-default-button" @click="$emit('close')">
-              OK
-            </button>
-          </slot>
-        </div> -->
       </div>
     </div>
   </div>
@@ -288,10 +286,10 @@ $danger: #f26451;
     .logic-formula-null {
       position: absolute;
       vertical-align: middle;
-      margin-left: 16px;
+      margin-left: 36px;
       color: $text-sub;
       top: 50%;
-      transform: translateY(-50%)
+      transform: translateY(-50%);
     }
   }
 }

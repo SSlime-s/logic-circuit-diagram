@@ -171,10 +171,10 @@ export function MakeTable(parts: Parts) {
       console.error("Detect Loop !");
     }
   }
-  parts.outputs.forEach((out, idx) => {
-    const name = parts.outputName[idx].text;
-    const formula = dotsFormula[out];
-  });
+  // parts.outputs.forEach((out, idx) => {
+  //   const name = parts.outputName[idx].text;
+  //   const formula = dotsFormula[out];
+  // });
   // console.log(dotsBool)
   // console.log(dotsFormula)
   // console.log(parts)

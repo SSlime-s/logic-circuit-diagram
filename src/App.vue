@@ -42,12 +42,14 @@
           v-if="name === 'input'"
           v-model="inputText"
           placeholder="Input Text"
+          onfocus="this.select();"
         />
         <input
           class="change-name"
           v-else-if="name === 'output'"
           v-model="outputText"
           placeholder="Output Text"
+          onfocus="this.select();"
         />
       </div>
     </div>
@@ -174,11 +176,8 @@ div {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #333333;
-  /* margin-top: 60px; */
 }
-/* .main-canvas {
-  text-align: left;
-} */
+
 input {
   width: 100px;
 }
@@ -186,24 +185,15 @@ input {
   background: $background;
 }
 .title {
-  // width: 100vw;
-  // border: solid 2px #000;
   position: relative;
   .title-text {
-    // display: inline-block;
-    // text-align: center;
     font-size: 48px;
     vertical-align: middle;
-    // float: center;
   }
   .make-table-button-container {
     position: absolute;
-    // border: solid 2px #f00;
     right: 0;
-    // top: 0;
     height: 100%;
-    // display: hidden;
-    // display: inline-block;
     text-align: right;
     .make-table-button {
       border: $ui-ter solid 1px;
@@ -225,14 +215,11 @@ input {
 .selectPartsContainer {
   position: relative;
   display: inline-block;
-  /* left: 50%; */
 }
 .selectParts {
-  /* margin-right: auto; */
   margin: auto;
   padding: 10px;
   float: left;
-  /* left: -50%; */
   font-size: 1.5rem;
 }
 input[type="radio"] {
@@ -241,6 +228,9 @@ input[type="radio"] {
 .change-name {
   border: $ui-sub solid 1px;
   margin: 1px;
+  &:hover {
+    background: $background-sub;
+  }
   &:focus {
     border: 2px solid #005bac;
     outline: 0;
